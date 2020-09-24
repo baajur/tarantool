@@ -194,6 +194,7 @@ add_library(box STATIC
     ${sql_sources}
     ${lua_sources}
     lua/init.c
+    lua/cfunc.c
     lua/call.c
     lua/cfg.cc
     lua/console.c

@@ -34,6 +34,7 @@
 #include "assoc.h"
 #include "lua/utils.h"
 #include "lua/call.h"
+#include "lua/cfunc.h"
 #include "error.h"
 #include "errinj.h"
 #include "diag.h"
@@ -152,6 +153,14 @@ module_init(void)
 			  "modules hash table");
 		return -1;
 	}
+	/*
+	 * cfunc depends on module engine,
+	 * so initialize them together.
+	 */
+	if (cfunc_init() != 0) {
+		module_free();
+		return -1;
+	}
 	return 0;
 }
 
@@ -166,6 +175,7 @@ module_free(void)
 		module_gc(module);
 	}
 	mh_strnptr_delete(modules);
+	cfunc_free();
 }
 
 /**
