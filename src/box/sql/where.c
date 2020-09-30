@@ -2887,7 +2887,12 @@ tnt_error:
 	}
 
 	/* Automatic indexes */
-	rSize = DEFAULT_TUPLE_LOG_COUNT;
+	/* Use when number of tuples N > 1024 -> tmp = 10 log(N) > 100. */
+	int tmp = sql_space_tuple_log_count(space);
+	if (!space->def->opts.is_view && tmp < 100)
+		rSize = DEFAULT_TUPLE_LOG_COUNT + 100 - tmp;
+	else
+		rSize = DEFAULT_TUPLE_LOG_COUNT;
 	LogEst rLogSize = estLog(rSize);
 	if (!pBuilder->pOrSet && /* Not pqart of an OR optimization */
 	    (pWInfo->wctrlFlags & WHERE_OR_SUBCLAUSE) == 0 &&
