@@ -2081,5 +2081,9 @@ key_def_set_compare_func(struct key_def *def)
 			key_def_set_compare_func_json<false, false>(def);
 		}
 	}
+	if (key_def_incomparable_type(def) != field_type_MAX) {
+		def->tuple_compare = NULL;
+		def->tuple_compare_with_key = NULL;
+	}
 	key_def_set_hint_func(def);
 }
