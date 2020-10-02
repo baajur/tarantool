@@ -2,9 +2,10 @@
 
 local INSTANCE_ID = string.match(arg[0], "%d")
 local SOCKET_DIR = require('fio').cwd()
+local SYNCHRO_QUORUM = arg[1] and tonumber(arg[1]) or 3
 
 local function instance_uri(instance_id)
-    return SOCKET_DIR..'/autobootstrap'..instance_id..'.sock';
+    return SOCKET_DIR..'/election_replica'..instance_id..'.sock';
 end
 
 require('console').listen(os.getenv('ADMIN'))
@@ -19,8 +20,11 @@ box.cfg({
     replication_timeout = 0.1,
     election_is_enabled = true,
     election_is_candidate = true,
-    election_timeout = 0.1,
-    replication_synchro_quorum = 3,
+    -- Should be at least as big as replication_disconnect_timeout, which is
+    -- 4 * replication_timeout.
+    election_timeout = 0.4,
+    replication_synchro_quorum = SYNCHRO_QUORUM,
+    replication_synchro_timeout = 0.1,
     -- To reveal more election logs.
     log_level = 6,
 })
