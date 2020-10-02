@@ -725,8 +725,9 @@ termCanDriveIndex(WhereTerm * pTerm,	/* WHERE clause term to check */
  * already been deallocated by the time this routine returns.
  */
 static int
-emit_autoindex_tuple_creation(struct Parse *parse, struct key_def *key_def,
-			      int cursor, int reg_out, int reg_eph)
+vdbe_emit_create_autoindex_tuple(struct Parse *parse,
+				 const struct key_def *key_def,
+				 int cursor, int reg_out, int reg_eph)
 {
 	assert(reg_out != 0);
 	struct Vdbe *v = parse->pVdbe;
@@ -949,8 +950,8 @@ constructAutomaticIndex(Parse * pParse,			/* The parsing context */
 		VdbeCoverage(v);
 	}
 	regRecord = sqlGetTempReg(pParse);
-	regBase = emit_autoindex_tuple_creation(pParse, idx_def->key_def,
-						cursor, regRecord, reg_eph);
+	regBase = vdbe_emit_create_autoindex_tuple(pParse, idx_def->key_def,
+						   cursor, regRecord, reg_eph);
 	sqlVdbeAddOp2(v, OP_IdxInsert, regRecord, reg_eph);
 	if (pTabItem->fg.viaCoroutine) {
 		sqlVdbeChangeP2(v, addrCounter, regBase + n + 1);
@@ -4873,10 +4874,7 @@ sqlWhereEnd(WhereInfo * pWInfo)
 				assert(def == NULL || def->space_id ==
 						      pTabItem->space->def->id);
 				int x = pOp->p2;
-				assert((pLoop->wsFlags & WHERE_IDX_ONLY) == 0 ||
-				       x >= 0);
-				if (x < 0)
-					continue;
+				assert(x >= 0);
 				pOp->p1 = pLevel->iIdxCur;
 				if ((pLoop->wsFlags & WHERE_AUTO_INDEX) == 0) {
 					pOp->p2 = x;
