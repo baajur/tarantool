@@ -2921,7 +2921,7 @@ tnt_error:
 				 * those objects, since there is no opportunity to add schema
 				 * indexes on subqueries and views.
 				 */
-				pNew->rSetup = rLogSize + rSize - 10;
+				pNew->rSetup = rLogSize + rSize;
 				/* TUNING: Each index lookup yields 20 rows in the table.  This
 				 * is more than the usual guess of 10 rows, since we have no way
 				 * of knowing how selective the index will ultimately be.  It would
